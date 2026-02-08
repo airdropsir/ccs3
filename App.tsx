@@ -58,18 +58,15 @@ export default function App() {
     const [isWizardOpen, setIsWizardOpen] = useState(false);
     const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
     
-    // وضعیت همگام‌سازی ابری
     const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'error' | 'local'>('syncing');
     const isFirstLoad = useRef(true);
 
-    // لود اولیه داده‌ها
     useEffect(() => {
         const initData = async () => {
             setSyncStatus('syncing');
             try {
                 const result = await dbService.loadData();
                 setData(result);
-                // اگر طول دیتا بیشتر از صفر بود یعنی لود موفق بوده
                 setSyncStatus(result.length >= 0 ? 'synced' : 'local');
             } catch (e) {
                 setSyncStatus('error');
@@ -80,16 +77,13 @@ export default function App() {
         initData();
     }, []);
 
-    // ذخیره خودکار (Auto-sync)
     useEffect(() => {
         if (isFirstLoad.current) return;
-
         const timer = setTimeout(async () => {
             setSyncStatus('syncing');
             const success = await dbService.saveData(data);
             setSyncStatus(success ? 'synced' : 'error');
         }, 2000);
-
         return () => clearTimeout(timer);
     }, [data]);
 
@@ -145,7 +139,7 @@ export default function App() {
                                 syncStatus === 'error' ? 'bg-red-50 text-red-600 border-red-100' :
                                 'bg-slate-50 text-slate-500 border-slate-100'
                             }`}>
-                                {syncStatus === 'synced' && <><Lucide.CloudCheck size={10}/> متصل به ابر</>}
+                                {syncStatus === 'synced' && <><Lucide.Cloud size={10}/> متصل به ابر</>}
                                 {syncStatus === 'syncing' && <><Lucide.RefreshCw size={10} className="animate-spin"/> در حال ذخیره...</>}
                                 {syncStatus === 'error' && <><Lucide.AlertCircle size={10}/> خطای ذخیره‌سازی ابری</>}
                                 {syncStatus === 'local' && <><Lucide.HardDrive size={10}/> حالت آفلاین (Local)</>}
@@ -164,7 +158,6 @@ export default function App() {
 
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <aside className="space-y-6">
-                    {/* تنظیمات نحوه محاسبه */}
                     <div className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4">
                         <h3 className="font-bold text-slate-700 flex items-center gap-2 border-b pb-2">
                             <Lucide.Zap size={18} className="text-amber-500"/> نحوه محاسبه
